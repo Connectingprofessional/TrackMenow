@@ -1453,7 +1453,8 @@
     const fromLon=Number.isFinite(p.fromLon)?p.fromLon:p.toLon, fromLat=Number.isFinite(p.fromLat)?p.fromLat:p.toLat;
     f.geometry.coordinates=[fromLon+(p.toLon-fromLon)*t, fromLat+(p.toLat-fromLat)*t];
   }
-  let tpAnimTimer=null;\n  let tpUserSelected=false;
+  let tpAnimTimer=null;
+  let tpUserSelected=false;
   function tpAnimEnsure(){
     const active=Object.keys(TP.on).some(function(k){return k!=='cells'&&TP.on[k];});
     if(active&&!tpAnimTimer) tpAnimTimer=setInterval(tpTick,500);
