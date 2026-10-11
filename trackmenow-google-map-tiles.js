@@ -76,7 +76,7 @@
   }
 
   async function resolveKey() {
-    var direct = String(window.TM_GOOGLE_MAPS_API_KEY || window.TM_GOOGLE_MAPS_3D_API_KEY || '').trim(); if (!direct) { try { direct = String(localStorage.getItem('TM_GOOGLE_MAPS_API_KEY') || localStorage.getItem('TM_GOOGLE_MAPS_3D_API_KEY') || '').trim(); } catch (e) {} }
+    var direct = String(window.TM_GOOGLE_MAPS_API_KEY || '').trim(); if (!direct) { try { direct = String(localStorage.getItem('TM_GOOGLE_MAPS_API_KEY') || '').trim(); } catch (e) {} }
     if (direct) return direct;
     try {
       var r = await fetch(API + '/api/google/maps-config', {cache:'no-store'});
