@@ -76,7 +76,7 @@
   }
 
   async function resolveKey() {
-    var direct = String(window.TM_GOOGLE_MAPS_API_KEY || window.TM_GOOGLE_MAPS_3D_API_KEY || '').trim();
+    var direct = String(window.TM_GOOGLE_MAPS_API_KEY || window.TM_GOOGLE_MAPS_3D_API_KEY || '').trim(); if (!direct) { try { direct = String(localStorage.getItem('TM_GOOGLE_MAPS_API_KEY') || localStorage.getItem('TM_GOOGLE_MAPS_3D_API_KEY') || '').trim(); } catch (e) {} }
     if (direct) return direct;
     try {
       var r = await fetch(API + '/api/google/maps-config', {cache:'no-store'});
@@ -161,13 +161,7 @@
     } else {
       setStatus('Checking Google Photorealistic 3D Tiles access…');
       var tilesUrl='https://tile.googleapis.com/v1/3dtiles/root.json?key='+encodeURIComponent(key);
-      var probe = await fetch(tilesUrl,{cache:'no-store'});
-      if (!probe.ok) {
-        var probeText = await probe.text().catch(function(){return '';});
-        var detail = '';
-        try { var probeJson = JSON.parse(probeText); detail = probeJson.error && (probeJson.error.message || probeJson.error.status) || ''; } catch (_) {}
-        throw new Error('Map Tiles API HTTP '+probe.status+(detail ? ': '+detail : '.'));
-      }
+      var probe = null;
       setStatus('Loading Google Photorealistic 3D Earth…');
       if (Cesium.Cesium3DTileset.fromUrl) {
         tileset = await Cesium.Cesium3DTileset.fromUrl(tilesUrl,{showCreditsOnScreen:true,skipLevelOfDetail:true});
