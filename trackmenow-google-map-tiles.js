@@ -155,13 +155,20 @@
   async function load3D() {
     var x = await ensureViewer(), Cesium=x.Cesium, key=x.key;
     if (imageryLayer) { viewer.imageryLayers.remove(imageryLayer, true); imageryLayer=null; }
-    viewer.scene.globe.show = true;
+    viewer.scene.globe.show = false;
     if (tileset) {
       tileset.show = true;
     } else {
-      setStatus('Loading Google Photorealistic 3D Tiles…');
-      setStatus('Connecting to Google Photorealistic 3D Tiles…');
+      setStatus('Checking Google Photorealistic 3D Tiles access…');
       var tilesUrl='https://tile.googleapis.com/v1/3dtiles/root.json?key='+encodeURIComponent(key);
+      var probe = await fetch(tilesUrl,{cache:'no-store'});
+      if (!probe.ok) {
+        var probeText = await probe.text().catch(function(){return '';});
+        var detail = '';
+        try { var probeJson = JSON.parse(probeText); detail = probeJson.error && (probeJson.error.message || probeJson.error.status) || ''; } catch (_) {}
+        throw new Error('Map Tiles API HTTP '+probe.status+(detail ? ': '+detail : '.'));
+      }
+      setStatus('Loading Google Photorealistic 3D Earth…');
       if (Cesium.Cesium3DTileset.fromUrl) {
         tileset = await Cesium.Cesium3DTileset.fromUrl(tilesUrl,{showCreditsOnScreen:true,skipLevelOfDetail:true});
       } else {
@@ -169,7 +176,8 @@
         if (tileset.readyPromise) await tileset.readyPromise;
       }
       viewer.scene.primitives.add(tileset);
-      if (tileset.loadProgress) tileset.loadProgress.addEventListener(function(queued,processing){ if(queued||processing) setStatus('Google Photorealistic 3D Tiles · loading '+queued+' queued'); viewer.scene.requestRender(); });
+      viewer.scene.globe.show = false;
+      if (tileset.loadProgress) tileset.loadProgress.addEventListener(function(queued,processing){ if(queued||processing) setStatus('Google 3D Earth · loading '+queued+' tiles'); viewer.scene.requestRender(); });
     }
     var c=trackCenter();
     var height=Math.max(12000,500000/Math.max(1,Math.pow(2,trackZoom()-2)));
@@ -209,8 +217,8 @@
       else await load2D(next);
     } catch(e) {
       console.error('[TrackMeNow] Google Map Tiles error', e);
-      if (viewer) { viewer.scene.globe.show = true; viewer.scene.requestRender(); }
-      setStatus((e && e.message ? e.message : 'Google Map Tiles failed to load.') + ' Check Map Tiles API, billing, key restrictions and referrer configuration.',true);
+      if (viewer) { viewer.scene.globe.show = false; viewer.scene.requestRender(); }
+      setStatus((e && e.message ? e.message : 'Google Map Tiles failed to load.') + ' Enable Map Tiles API + billing and use a Map Tiles-compatible key.',true);
     } finally { loading=false; }
   }
 
