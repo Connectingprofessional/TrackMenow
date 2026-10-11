@@ -17,9 +17,9 @@
     var s = document.createElement('style');
     s.id = 'tm-google-tiles-css';
     s.textContent =
-      '#tm-google-tiles{position:fixed;inset:0;z-index:10020;display:none;background:#05080c;color:#eaf6ff;font:12px system-ui,sans-serif}' +
+      '#tm-google-tiles{position:fixed;inset:0 0 var(--tm-dock-h,76px) 0;z-index:5200;display:none;background:#05080c;color:#eaf6ff;font:12px system-ui,sans-serif}' +
       '#tm-google-tiles.active{display:block}' +
-      '#tm-google-tiles-view{position:absolute;inset:0 0 66px 0}' +
+      '#tm-google-tiles-view{position:absolute;inset:0}' +
       '#tm-google-tiles-view .cesium-viewer{font-family:system-ui,sans-serif}' +
       '#tm-google-tiles-toolbar{position:absolute;z-index:20;top:10px;left:10px;right:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;pointer-events:none}' +
       '#tm-google-tiles-toolbar>*{pointer-events:auto}' +
@@ -27,11 +27,11 @@
       '.tm-gt-btn{border:1px solid #ffffff2b;border-radius:7px;background:#071522ee;color:#eaf7ff;padding:8px 10px;font:800 10px system-ui;cursor:pointer}' +
       '.tm-gt-btn:hover{background:#10283a}.tm-gt-btn.on{background:#15508a;border-color:#58a9ff}.tm-gt-blue{background:#1a73e8;border-color:#5aa0f5;color:#fff}' +
       '#tm-google-tiles-close{margin-left:auto}' +
-      '#tm-google-tiles-dock{position:absolute;z-index:20;left:0;right:0;bottom:0;min-height:66px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;padding:7px;background:#040a11f5;border-top:1px solid #ffffff20}' +
+      '#tm-google-tiles-dock{display:none!important;position:absolute;z-index:20;left:0;right:0;bottom:0;min-height:66px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;padding:7px;background:#040a11f5;border-top:1px solid #ffffff20}' +
       '#tm-google-tiles-dock .tm-gt-btn{min-width:110px}' +
       '#tm-google-tiles-attribution{position:absolute;z-index:21;right:8px;bottom:74px;max-width:min(720px,70vw);padding:3px 6px;color:#fff;background:#0008;font-size:10px;text-shadow:0 1px 2px #000;pointer-events:none}' +
       '#tm-google-tiles-attribution a{color:#fff}' +
-      '#tm-google-tiles-open{position:fixed;z-index:10005;right:14px;top:142px;min-height:36px;padding:0 12px;border:1px solid #5aa0f5;border-radius:8px;background:#1a73e8;color:#fff;font:900 10px system-ui;cursor:pointer;box-shadow:0 5px 20px #0006}' +
+      '#tm-google-tiles-open{display:none!important;position:fixed;z-index:10005;right:14px;top:142px;min-height:36px;padding:0 12px;border:1px solid #5aa0f5;border-radius:8px;background:#1a73e8;color:#fff;font:900 10px system-ui;cursor:pointer;box-shadow:0 5px 20px #0006}' +
       '@media(max-width:650px){#tm-google-tiles-toolbar{top:6px;left:6px;right:6px}#tm-google-tiles-status{max-width:calc(100vw - 20px);order:3;flex-basis:100%}#tm-google-tiles-view{bottom:108px}#tm-google-tiles-dock{min-height:108px;padding:5px}.tm-gt-btn{padding:7px 8px;font-size:9px}#tm-google-tiles-dock .tm-gt-btn{min-width:0}#tm-google-tiles-attribution{bottom:112px;left:6px;right:6px;max-width:none}}';
     document.head.appendChild(s);
   }
@@ -51,7 +51,7 @@
     var view = document.createElement('div'); view.id = 'tm-google-tiles-view';
     var toolbar = document.createElement('div'); toolbar.id = 'tm-google-tiles-toolbar';
     var status = document.createElement('div'); status.id = 'tm-google-tiles-status'; status.textContent = 'Google Map Tiles ready.';
-    var close = button('TRACKMENOW MAP', closeTiles); close.id = 'tm-google-tiles-close';
+    var close = button('BACK TO COMMON MAP', closeTiles); close.id = 'tm-google-tiles-close';
     toolbar.append(status, close);
     var attribution = document.createElement('div');
     attribution.id = 'tm-google-tiles-attribution';
@@ -182,7 +182,7 @@
       complete:function(){ viewer.scene.requestRender(); }
     });
     viewer.scene.requestRender();
-    setStatus('Google Map Tiles API · PHOTOREALISTIC 3D TILES active. CesiumJS is rendering Google 3D Tiles.');
+    setStatus('EARTH · GOOGLE PHOTOREALISTIC 3D TILES · COMMON MAP VIEW');
   }
 
   async function load2D(mapType) {
@@ -200,7 +200,7 @@
     imageryLayer=viewer.imageryLayers.addImageryProvider(provider);
     var c=trackCenter();
     viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(c.lng,c.lat,Math.max(25000,1000000/Math.max(1,trackZoom()))),duration:0.9});
-    setStatus('Google Map Tiles API · 2D '+mapType.toUpperCase()+' active.');
+    setStatus('EARTH · GOOGLE '+mapType.toUpperCase()+' · COMMON MAP VIEW');
   }
 
   async function switchMode(next) {
