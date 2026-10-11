@@ -182,7 +182,7 @@
       complete:function(){ viewer.scene.requestRender(); }
     });
     viewer.scene.requestRender();
-    setStatus('Google Map Tiles API · PHOTOREALISTIC 3D active. Earth + Google photorealistic buildings enabled.');
+    setStatus('Google Map Tiles API · PHOTOREALISTIC 3D TILES active. CesiumJS is rendering Google 3D Tiles.');
   }
 
   async function load2D(mapType) {
@@ -236,6 +236,19 @@
     await switchMode(mode);
   }
 
+  async function open3D() {
+    ensureUI();
+    if (window.TrackMeNowGoogleLiveMap && window.TrackMeNowGoogleLiveMap.isActive && window.TrackMeNowGoogleLiveMap.isActive()) {
+      window.TrackMeNowGoogleLiveMap.close();
+    }
+    active = true;
+    mode = '3d';
+    overlay.classList.add('active');
+    setStatus('Loading Google Photorealistic 3D Tiles with CesiumJS…');
+    await switchMode('3d');
+    return viewer;
+  }
+
   function closeTiles() {
     active=false;
     if(overlay) overlay.classList.remove('active');
@@ -243,7 +256,7 @@
 
   function init() {
     ensureUI();
-    window.TrackMeNowGoogleMapTiles = {open:openTiles,close:closeTiles,isActive:function(){return active;}};
+    window.TrackMeNowGoogleMapTiles = {open:openTiles,open3D:open3D,close:closeTiles,isActive:function(){return active;}};
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
