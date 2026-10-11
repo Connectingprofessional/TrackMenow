@@ -4,7 +4,7 @@
 const API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?location.origin:'https://wispy-bush-9aee.recreationeeraj.workers.dev';
 const isLocal=location.hostname==='localhost'||location.hostname==='127.0.0.1';
 const T={
- MAP:['GOOGLE EARTH','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER','OVERVIEW','LAYERS','INTELLIGENCE','SEARCH'],
+ MAP:['GOOGLE EARTH','STREET VIEW','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER','OVERVIEW','LAYERS','INTELLIGENCE','SEARCH'],
  SPACE:['SOLAR SYSTEM','EARTH','MOON','MARS','SATELLITES','ISS / SPACE STATIONS','EARTH OBSERVATION','SPACE WEATHER'],
  TRANSIT:['ALL TRANSPORT','AIR','SHIP','TAXI','BUS','RAILWAY','METRO','BOAT','PERSONAL JET','CAR','BIKES'],
  WEATHER:['NATURAL CALAMITIES','WEATHER REPORT'],
@@ -71,7 +71,7 @@ function build(){
 }
 function render(){
  const main=$('#tm-main-tabs'),sub=$('#tm-subbar'),panel=$('#tm-panel');Array.from(main.children).forEach(b=>b.classList.toggle('active',b.textContent===state.tab));
- sub.innerHTML='';T[state.tab].forEach(s=>{const b=el('button',{class:'tm-sub',type:'button'},s);b.classList.toggle('active',s===state.sub);b.onclick=()=>{state.sub=s;state.stack=null;if(state.tab==='MAP'&&['GOOGLE EARTH','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER'].includes(s)){state.panel=false;mapAction(s)}else{if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();state.panel=true;}logUi('subtab',state.tab,s);render()};sub.append(b)});
+ sub.innerHTML='';T[state.tab].forEach(s=>{const b=el('button',{class:'tm-sub',type:'button'},s);b.classList.toggle('active',s===state.sub);b.onclick=()=>{state.sub=s;state.stack=null;if(state.tab==='MAP'&&['GOOGLE EARTH','STREET VIEW','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER'].includes(s)){state.panel=false;mapAction(s)}else{if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();state.panel=true;}logUi('subtab',state.tab,s);render()};sub.append(b)});
  panel.classList.toggle('open',state.panel);setPanelTitle();if(state.panel)draw(panel);
  requestAnimationFrame(()=>document.documentElement.style.setProperty('--tm-dock-h',($('#tm-shell').offsetHeight||74)+'px'));
 }
@@ -174,15 +174,17 @@ function drawRoadDeviceIntelligence(p){
 function drawMap(p){
  if(state.sub==='SEARCH')return drawSearch(p);
  if(state.sub==='INTELLIGENCE')return drawRoadDeviceIntelligence(p);
- if(['GOOGLE EARTH','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER'].includes(state.sub))return;
- const items={OVERVIEW:['GOOGLE EARTH','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER'],LAYERS:['SATELLITE','LIVE','RADAR','DAY / NIGHT','WEATHER'],SEARCH:[]}[state.sub]||[];
+ if(['GOOGLE EARTH','STREET VIEW','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER'].includes(state.sub))return;
+ const items={OVERVIEW:['GOOGLE EARTH','STREET VIEW','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER'],LAYERS:['SATELLITE','LIVE','RADAR','DAY / NIGHT','WEATHER'],SEARCH:[]}[state.sub]||[];
  p.append(status('Map views are mutually selectable; the common zoom control stays in the dock.'));
  const g=el('div',{class:'tm-stack'});
  items.forEach(k=>g.append(card(k,'Select this map view.',()=>mapAction(k),'SELECT')));p.append(g);
 }
 function mapAction(k){
- if(k==='GOOGLE EARTH'){if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.open();return;}
+ if(k==='GOOGLE EARTH'){if(window.TrackMeNowStreetView)window.TrackMeNowStreetView.hide();if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.open();return;}
+ if(k==='STREET VIEW'){if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();if(window.TrackMeNowStreetView&&window.TrackMeNowStreetView.openCurrent)window.TrackMeNowStreetView.openCurrent();return;}
  if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();
+ if(window.TrackMeNowStreetView&&k!=='STREET VIEW')window.TrackMeNowStreetView.hide();
  const e=engine();if(!e)return;
  if(k==='SATELLITE')oldClick('[data-bar="satellite"]');
  if(k==='LIVE')e.selectWeather('live');
