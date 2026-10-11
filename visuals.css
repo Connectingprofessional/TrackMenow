@@ -47,14 +47,10 @@
 .tm-check{font-size:8px;color:#b9c7cf;display:block}.tm-periods,.tm-timeline{display:flex;gap:5px;align-items:center;flex-wrap:wrap}.tm-periods button,.tm-timeline button{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);color:#b9c7cf;border-radius:5px;padding:5px 8px;font-size:8px;cursor:pointer}.tm-periods button.on{color:#fff;border-color:#4fd0a0;background:rgba(79,208,160,.1)}.tm-timeline{font-size:8px;color:#94a4ad}
 @media(max-width:800px){#tm-top{left:6px;right:6px}.tm-brand{display:none}.tm-search{max-width:none}.tm-tab{padding:0 9px;font-size:9px}.tm-stack{grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}}
 
-/* Dynamic intelligence-map visual treatment: satellite stays primary; effects never intercept map clicks. */
-body::before{content:"";position:fixed;inset:0;z-index:1200;pointer-events:none;background:
- linear-gradient(rgba(80,190,220,.025) 1px,transparent 1px),
- linear-gradient(90deg,rgba(80,190,220,.018) 1px,transparent 1px),
- radial-gradient(circle at 50% 48%,transparent 42%,rgba(0,5,10,.28) 100%);
-background-size:34px 34px,34px 34px,100% 100%;mix-blend-mode:screen;opacity:.65}
-body::after{content:"";position:fixed;inset:0;z-index:1201;pointer-events:none;background:linear-gradient(180deg,rgba(40,210,240,.035),transparent 18%,transparent 82%,rgba(0,0,0,.18));animation:tmAtmosphere 7s ease-in-out infinite alternate}
-@keyframes tmAtmosphere{from{opacity:.48}to{opacity:.82}}
+/* Map clarity: the Earth imagery must remain unmasked. The previous full-screen
+   body pseudo-elements added a slowly brightening atmospheric/grid wash over the
+   real satellite/3D imagery. Keep decorative treatment out of the map viewport. */
+body::before,body::after{content:none!important;display:none!important}
 #tm-top{background:linear-gradient(90deg,rgba(2,8,13,.38),transparent 35%,transparent 65%,rgba(2,8,13,.22));border-radius:12px}
 .tm-brand{font-size:15px;letter-spacing:1.8px}
 .tm-search{border-color:rgba(82,215,255,.22);box-shadow:0 8px 30px rgba(0,0,0,.35),0 0 25px rgba(38,190,230,.04)}
