@@ -12,8 +12,7 @@
   var overlay = null;
   var panoramaHost = null;
   var statusEl = null;
-  var toggle = null;
-  var closeBtn = null;
+    var closeBtn = null;
   var panorama = null;
   var apiPromise = null;
   var requestToken = 0;
@@ -28,9 +27,8 @@
     var style = document.createElement('style');
     style.id = 'tm-streetview-css';
     style.textContent =
-      '#tm-streetview-toggle{position:fixed;z-index:10021;right:64px;top:78px;width:44px;height:48px;padding:0;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:rgba(6,12,18,.96);color:#eaf4fa;cursor:grab;font:700 23px system-ui;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.35);touch-action:none;user-select:none}#tm-streetview-toggle:active{cursor:grabbing}#tm-streetview-toggle::after{content:"DRAG";position:absolute;top:100%;margin-top:3px;font:700 8px system-ui;letter-spacing:1px;color:#d8e9f3}' +
-      '#tm-streetview-toggle.on{border-color:#62d7ff;color:#62d7ff}' +
-      '#tm-streetview-overlay{position:fixed;inset:0 0 var(--tm-dock-h,76px) 0;z-index:10010;background:#05080c;display:none}' +
+      '' +
+      '#tm-streetview-overlay{position:fixed;inset:58px 0 var(--tm-dock-h,76px) 0;z-index:10010;background:#05080c;display:none}' +
       '#tm-streetview-overlay.open{display:block}' +
       '#tm-streetview-panorama{position:absolute;inset:0;width:100%;height:100%;background:#080d12}' +
       '#tm-streetview-head{position:absolute;left:12px;top:12px;z-index:5;display:flex;align-items:center;gap:10px;max-width:calc(100% - 24px);padding:8px 10px;border:1px solid rgba(180,210,230,.2);border-radius:9px;background:rgba(4,10,16,.88);color:#dff4ff;font:700 11px system-ui;box-shadow:0 4px 20px rgba(0,0,0,.25)}' +
@@ -39,8 +37,8 @@
       '#tm-streetview-status{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;max-width:min(560px,calc(100% - 32px));padding:14px 16px;border:1px solid rgba(160,200,225,.22);border-radius:10px;background:rgba(4,10,16,.95);color:#cfe3ee;font:13px/1.55 system-ui;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4)}' +
       '#tm-streetview-status[hidden]{display:none}' +
       '#tm-streetview-status a{color:#62d7ff}' +
-      'body.tm-pegman-dragging #map,body.tm-pegman-dragging #tm-google-earth-stage{outline:2px dashed #62d7ff;outline-offset:-5px}' +
-      '@media(max-width:600px){#tm-streetview-toggle{right:52px;top:68px}#tm-streetview-head{left:8px;top:8px}#tm-streetview-overlay{inset:0}}';
+      '' +
+      '@media(max-width:600px){#tm-streetview-head{left:8px;top:8px}#tm-streetview-overlay{inset:52px 0 0 0}}';
     document.head.appendChild(style);
 
     overlay = document.createElement('section');
@@ -77,27 +75,7 @@
     toggle.setAttribute('aria-label', 'Drag Pegman onto the map for Street View');
     toggle.draggable = true;
     document.body.appendChild(toggle);
-    toggle.addEventListener('dragstart', function(event){wasDragged=true;active=true;toggle.classList.add('on');if(event.dataTransfer){event.dataTransfer.setData('text/plain','trackmenow-pegman');event.dataTransfer.effectAllowed='copy';}document.body.classList.add('tm-pegman-dragging');});
-    toggle.addEventListener('dragend', function(){document.body.classList.remove('tm-pegman-dragging');window.setTimeout(function(){wasDragged=false;},300);});
-    toggle.addEventListener('click', function () {
-      if (wasDragged) return;
-      if (active) {
-        active = false;
-        toggle.classList.remove('on');
-        toggle.title = 'Street View: activate, then click a road or place on the map';
-        toggle.setAttribute('aria-label', 'Activate Google Street View');
-        if (map) map.getCanvas().style.cursor = '';
-        hideView();
-      } else {
-        active = true;
-        toggle.classList.add('on');
-        toggle.title = 'Street View is active — click a road or place on the map';
-        toggle.setAttribute('aria-label', 'Street View active; click a location on the map');
-        if (map) map.getCanvas().style.cursor = 'crosshair';
-        showStatus('Street View is ready. Click a road or place on the map to open the nearest available panorama.');
-      }
-    });
-    closeBtn.addEventListener('click', hideView);
+    closeBtn.addEventListener("click", hideView);
     var targets=[document.getElementById('map'),document.getElementById('tm-google-earth-stage')];
     targets.forEach(function(target){if(!target)return;
       target.addEventListener('dragover',function(event){event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect='copy';});
@@ -282,7 +260,16 @@
   window.TrackMeNowStreetView = {
     attach: function (m) { map = m; install(); },
     show: showAt,
-    handleEarthClick: function(pos){if(active&&pos&&Number.isFinite(Number(pos.lat))&&Number.isFinite(Number(pos.lng))){active=false;if(toggle)toggle.classList.remove('on');showAt(Number(pos.lat),Number(pos.lng));}},
+    openCurrent: function () {
+      var m = map || window.map || window.maplibre;
+      if (!m || typeof m.getCenter !== 'function') {
+        showStatus('TrackMeNow map is not ready yet.');
+        return;
+      }
+      var c = m.getCenter();
+      showAt(Number(c.lat), Number(c.lng));
+    },
+    handleEarthClick: function(pos){if(pos&&Number.isFinite(Number(pos.lat))&&Number.isFinite(Number(pos.lng)))showAt(Number(pos.lat),Number(pos.lng));},
     hide: hideView
   };
 })();
