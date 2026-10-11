@@ -520,7 +520,40 @@ function drawHistory(p){
  };
  p.append(b,out);
 }
-function drawGeofence(p){p.append(status('Geofences use the current GPS session and server-side distance checks.'));p.append(card('CREATE GEOFENCE','Create around the current map center.',async()=>{const m=map();if(!m)return;const c=m.getCenter(),name=prompt('Geofence name','My zone'),radius=Number(prompt('Radius in metres','500'));if(!name||!radius)return;await api('/api/geofences',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:gps.session,lat:c.lat,lon:c.lng,radius_m:radius,name})});alert('Geofence created.')},'CREATE'))}
+function drawGeofence(p){
+ p.append(status('Geofences use consented GPS sessions. Create, refresh and inspect server-stored zones.'));
+ const wrap=el('div',{class:'tm-stack'});p.append(wrap);
+ const refresh=async()=>{
+   wrap.innerHTML='';
+   try{
+     const q=gps.session?'?sessionId='+encodeURIComponent(gps.session):'';
+     const j=await api('/api/geofences'+q);
+     const rows=Array.isArray(j.geofences)?j.geofences:(Array.isArray(j)?j:[]);
+     if(!rows.length) wrap.append(card('NO GEOFENCES','No stored geofences were returned for this session.',null,'EMPTY'));
+     rows.forEach(g=>{
+       const radius=Number(g.radius_m||g.radius||0);
+       wrap.append(card(g.name||'GEOFENCE',
+         [radius?radius.toLocaleString()+' m radius':'radius unavailable',g.lat!=null&&g.lon!=null?Number(g.lat).toFixed(5)+', '+Number(g.lon).toFixed(5):'center unavailable',g.enabled===false?'DISABLED':'ACTIVE'].join(' · '),
+         ()=>{if(map()&&g.lon!=null&&g.lat)map().flyTo({center:[Number(g.lon),Number(g.lat)],zoom:15,duration:700});},
+         'CENTER'));
+     });
+     const s=status('GEOFENCE SERVICE · '+rows.length+' stored zone'+(rows.length===1?'':'s')+' · '+new Date().toLocaleTimeString());
+     s.classList.add('tm-global-feed-status','ok');wrap.append(s);
+   }catch(e){wrap.append(card('GEOFENCE SERVICE',e.message||'Unable to fetch geofences.',null,'RETRY'))}
+ };
+ wrap.append(card('CREATE GEOFENCE','Create around the current map center.',async()=>{
+   const m=map();if(!m)return;
+   const cc=m.getCenter(),name=prompt('Geofence name','My zone'),radius=Number(prompt('Radius in metres','500'));
+   if(!name||!radius)return;
+   try{
+     await api('/api/geofences',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:gps.session,lat:cc.lat,lon:cc.lng,radius_m:radius,name})});
+     await refresh();alert('Geofence created.');
+   }catch(e){alert(e.message||'Geofence creation failed.')}
+ },'CREATE'));
+ const rb=el('button',{class:'tm-action',type:'button'},'REFRESH GEOFENCES');
+ rb.onclick=()=>{rb.disabled=true;refresh().finally(()=>rb.disabled=false)};
+ p.append(rb);refresh();
+}
 function cameraBbox(){const m=map();if(!m)return null;const b=m.getBounds();return [b.getWest(),b.getSouth(),b.getEast(),b.getNorth()].join(',');}
 let cameraLoadTimer=null,cameraLoadSeq=0;
 function scheduleCameraAtlas(delay=250){clearTimeout(cameraLoadTimer);cameraLoadTimer=setTimeout(()=>loadCameraAtlas(),delay);}
