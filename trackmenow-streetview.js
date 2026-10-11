@@ -146,7 +146,7 @@
       var script = document.createElement('script');
       script.dataset.tmGoogle3dApi = '1';
       script.async = true;
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(k) + '&v=weekly&loading=async&libraries=maps3d';
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(k) + '&v=weekly&loading=async&libraries=streetView,maps3d';
       script.onload = resolve;
       script.onerror = function () { reject(new Error('Google Maps JavaScript API failed to load. Check the browser key restrictions and API access.')); };
       document.head.appendChild(script);
@@ -167,11 +167,14 @@
     try {
       await loadGoogleApi();
       if (token !== requestToken) return;
-      var lib = await window.google.maps.importLibrary('streetView');
+      var lib = null;
+      if (window.google.maps && typeof window.google.maps.importLibrary === 'function') {
+        lib = await window.google.maps.importLibrary('streetView');
+      }
       if (token !== requestToken) return;
-      var StreetViewPanorama = lib.StreetViewPanorama;
-      var StreetViewService = lib.StreetViewService;
-      var StreetViewStatus = lib.StreetViewStatus;
+      var StreetViewPanorama = lib && lib.StreetViewPanorama ? lib.StreetViewPanorama : window.google.maps.StreetViewPanorama;
+      var StreetViewService = lib && lib.StreetViewService ? lib.StreetViewService : window.google.maps.StreetViewService;
+      var StreetViewStatus = lib && lib.StreetViewStatus ? lib.StreetViewStatus : window.google.maps.StreetViewStatus;
       if (!StreetViewPanorama || !StreetViewService) {
         throw new Error('Google Street View library is unavailable. Confirm Maps JavaScript API is enabled for this key.');
       }
