@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://gibs.earthdata.nasa.gov">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="./vendor/maplibre-gl/maplibre-gl.css">
-<link rel="stylesheet" href="./visuals.css?v=trackmenow-premium-26">
+<link rel="stylesheet" href="./visuals.css?v=trackmenow-premium-27">
 <style>
 *{box-sizing:border-box}
 html,body{height:100%;width:100%;margin:0;background:#05080c;color:#edf4f8;font-family:system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden}
@@ -26,7 +26,9 @@ body{overscroll-behavior:none}
    (already toggled by setStatus() in several files) control visibility. */
 #status{position:fixed;z-index:4500;left:12px;top:52px;max-width:min(560px,calc(100vw - 24px));padding:6px 10px;border:1px solid rgba(150,190,220,.18);border-radius:7px;background:rgba(5,10,16,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:10px;line-height:1.4;color:#cfe3ee;opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .25s ease,transform .25s ease;pointer-events:none}
 #status.tm-show{opacity:1;visibility:visible;transform:translateY(0)}
-#tm-bottom-bar{display:none!important;height:0!important;overflow:hidden!important;pointer-events:none!important}
+/* Bottom command dock is the primary TrackMeNow navigation workspace. Keep it visible. */
+#tm-shell{display:block!important;visibility:visible!important;opacity:1!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;pointer-events:auto!important;}
+#tm-main-tabs,#tm-subbar{visibility:visible!important;opacity:1!important;}
 #tm-timebar{bottom:calc(var(--tm-dock-h,76px) + 10px)!important;z-index:5000!important}
 #tm-shell{z-index:6000!important}
 #tm-panel.open{z-index:6100!important}
