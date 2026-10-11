@@ -1453,7 +1453,7 @@
     const fromLon=Number.isFinite(p.fromLon)?p.fromLon:p.toLon, fromLat=Number.isFinite(p.fromLat)?p.fromLat:p.toLat;
     f.geometry.coordinates=[fromLon+(p.toLon-fromLon)*t, fromLat+(p.toLat-fromLat)*t];
   }
-  let tpAnimTimer=null;
+  let tpAnimTimer=null;\n  let tpUserSelected=false;
   function tpAnimEnsure(){
     const active=Object.keys(TP.on).some(function(k){return k!=='cells'&&TP.on[k];});
     if(active&&!tpAnimTimer) tpAnimTimer=setInterval(tpTick,500);
@@ -1473,7 +1473,7 @@
 
   }
   function tpSelPos(){if(!TP.sel)return null;const d=TP.data[TP.sel.k];if(!d)return null;const f=d.features[TP.sel.i];return tpPos(TP.sel.k,f);}
-  function tpSelect(k,i,follow){TP.sel={k:k,i:+i};TP.follow=!!follow;tpCard();tpTick();}
+  function tpSelect(k,i,follow){TP.sel={k:k,i:+i};TP.follow=!!follow;tpUserSelected=true;tpCard();tpTick();}
   function tpCard(light){
     let c=$('tm-tp-card');
     if(!c){c=document.createElement('div');c.id='tm-tp-card';c.style.cssText='position:fixed;z-index:2260;left:14px;top:110px;width:250px;padding:12px 14px;border-radius:12px;background:rgba(8,12,18,.94);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);color:#e8f0f6;font:12px/1.5 system-ui;display:none';document.body.appendChild(c);}
@@ -1589,7 +1589,7 @@
     });
     if(!best)return false;
     if(!TP.on[best[0]]){TP.on[best[0]]=true;if(maplibre.getLayer('tp-'+best[0]))maplibre.setLayoutProperty('tp-'+best[0],'visibility','visible');syncBar();}
-    TP.sel={k:best[0],i:best[1]};const p=tpSelPos();TP.follow=true;
+    TP.sel={k:best[0],i:best[1]};const p=tpSelPos();TP.follow=true;tpUserSelected=true;
     if(p)maplibre.flyTo({center:[p[0],p[1]],zoom:Math.max(maplibre.getZoom(),best[0]==='air'?7:11),duration:1400});
     tpCard();tpTick();return true;
   };
