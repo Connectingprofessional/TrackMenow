@@ -168,9 +168,17 @@
       viewer.scene.primitives.add(tileset);
       tileset.loadProgress.addEventListener(function(queued,processing){ if(queued||processing) setStatus('Google Photorealistic 3D Tiles · loading '+queued+' queued'); });
       await tileset.readyPromise;
+      tileset.loadProgress.addEventListener(function(){ viewer.scene.requestRender(); });
     }
     var c=trackCenter();
-    viewer.camera.flyTo({destination:Cesium.Cartesian3.fromDegrees(c.lng,c.lat,Math.max(120000,800000/Math.max(1,trackZoom()))),duration:1.1});
+    var height=Math.max(35000,900000/Math.max(1,Math.pow(2,trackZoom()-2)));
+    viewer.camera.flyTo({
+      destination:Cesium.Cartesian3.fromDegrees(c.lng,c.lat,height),
+      orientation:{heading:0,pitch:-Cesium.Math.toRadians(62),roll:0},
+      duration:1.1,
+      complete:function(){ viewer.scene.requestRender(); }
+    });
+    viewer.scene.requestRender();
     setStatus('Google Map Tiles API · PHOTOREALISTIC 3D active. Google imagery coverage/capture dates determine building freshness.');
   }
 
@@ -199,6 +207,7 @@
       if(next==='3d') await load3D();
       else await load2D(next);
     } catch(e) {
+      console.error('[TrackMeNow] Google Map Tiles error', e);
       setStatus((e && e.message ? e.message : 'Google Map Tiles failed to load.') + ' Check Map Tiles API, billing, key restrictions and referrer configuration.',true);
     } finally { loading=false; }
   }
@@ -207,8 +216,10 @@
     if (!viewer || !window.Cesium) return;
     var c=trackCenter();
     viewer.camera.flyTo({
-      destination:window.Cesium.Cartesian3.fromDegrees(c.lng,c.lat,mode==='3d'?Math.max(120000,800000/Math.max(1,trackZoom())):Math.max(25000,1000000/Math.max(1,trackZoom()))),
-      duration:0.8
+      destination:window.Cesium.Cartesian3.fromDegrees(c.lng,c.lat,mode==='3d'?Math.max(35000,900000/Math.max(1,Math.pow(2,trackZoom()-2))):Math.max(25000,1000000/Math.max(1,trackZoom()))),
+      orientation:mode==='3d'?{heading:0,pitch:-window.Cesium.Math.toRadians(62),roll:0}:undefined,
+      duration:0.8,
+      complete:function(){ viewer.scene.requestRender(); }
     });
   }
 
