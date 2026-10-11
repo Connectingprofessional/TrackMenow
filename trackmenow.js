@@ -1414,9 +1414,9 @@
       const a=.11+(.07*(Math.sin(tmPulseT)+1));
       ['air','ships','transit','rail','metro','taxi','car','bike'].forEach(function(k){
         const id='tp-'+k+'-halo';
-        if(maplibre.getLayer(id)){try{maplibre.setPaintProperty(id,'circle-opacity',a);}catch(e){}}
+        if(maplibre && typeof maplibre.getLayer==='function' && maplibre.getLayer(id)){try{maplibre.setPaintProperty(id,'circle-opacity',a);}catch(e){}}
       });
-      if(maplibre.getLayer('tm-cameras-halo')){try{maplibre.setPaintProperty('tm-cameras-halo','circle-opacity',.10+.08*(Math.sin(tmPulseT*0.8)+1));}catch(e){}}
+      if(maplibre && typeof maplibre.getLayer==='function' && maplibre.getLayer('tm-cameras-halo')){try{maplibre.setPaintProperty('tm-cameras-halo','circle-opacity',.10+.08*(Math.sin(tmPulseT*0.8)+1));}catch(e){}}
     },100);
   }
   function tpApply(){if(!maplibre)return;Object.keys(TP.on).forEach(function(k){if(maplibre.getLayer('tp-'+k))maplibre.setLayoutProperty('tp-'+k,'visibility',TP.on[k]?'visible':'none');});tpTick();tpStatus();}
