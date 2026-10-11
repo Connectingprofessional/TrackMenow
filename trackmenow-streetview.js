@@ -13,6 +13,7 @@
   var panoramaHost = null;
   var statusEl = null;
   var closeBtn = null;
+  var pegmanBtn = null;
   var panorama = null;
   var apiPromise = null;
   var requestToken = 0;
@@ -33,6 +34,8 @@
       '#tm-streetview-head{position:absolute;left:12px;top:12px;z-index:5;display:flex;align-items:center;gap:10px;max-width:calc(100% - 24px);padding:8px 10px;border:1px solid rgba(180,210,230,.2);border-radius:9px;background:rgba(4,10,16,.88);color:#dff4ff;font:700 11px system-ui;box-shadow:0 4px 20px rgba(0,0,0,.25)}' +
       '#tm-streetview-title{max-width:min(62vw,520px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
       '#tm-streetview-close{border:0;border-radius:5px;padding:5px 8px;background:rgba(255,255,255,.1);color:#fff;font:700 14px system-ui;cursor:pointer}' +
+      '#tm-streetview-pegman{position:fixed;right:18px;top:72px;z-index:10020;width:46px;height:46px;border:1px solid rgba(255,255,255,.25);border-radius:9px;background:rgba(4,10,16,.92);color:#fff;font-size:25px;cursor:grab;box-shadow:0 5px 22px rgba(0,0,0,.35);display:none}' +
+      '#tm-streetview-pegman.on{display:block;outline:2px solid rgba(98,215,255,.45)}' +
       '#tm-streetview-status{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;max-width:min(560px,calc(100% - 32px));padding:14px 16px;border:1px solid rgba(160,200,225,.22);border-radius:10px;background:rgba(4,10,16,.95);color:#cfe3ee;font:13px/1.55 system-ui;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4)}' +
       '#tm-streetview-status[hidden]{display:none}' +
       '#tm-streetview-status a{color:#62d7ff}' +
@@ -66,12 +69,22 @@
     overlay.appendChild(statusEl);
     document.body.appendChild(overlay);
 
+    pegmanBtn = document.createElement('button');
+    pegmanBtn.type='button'; pegmanBtn.id='tm-streetview-pegman'; pegmanBtn.textContent='🚶'; pegmanBtn.title='Drag Pegman onto the map, or click the map'; pegmanBtn.draggable=true;
+    pegmanBtn.addEventListener('click',function(){active=!active;pegmanBtn.classList.toggle('on',active);if(map&&map.getCanvas)map.getCanvas().style.cursor=active?'crosshair':'';});
+    pegmanBtn.addEventListener('dragstart',function(e){active=true;pegmanBtn.classList.add('on');if(e.dataTransfer){e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('text/plain','trackmenow-streetview');}});
+    document.body.appendChild(pegmanBtn);
     closeBtn.addEventListener('click', hideView);
     var targets=[document.getElementById('map'),document.getElementById('tm-google-earth-stage')];
     targets.forEach(function(target){
       if(!target)return;
       target.addEventListener('dragover',function(event){event.preventDefault();});
-      target.addEventListener('drop',function(event){event.preventDefault();});
+      target.addEventListener('drop',function(event){event.preventDefault();
+        if(target.id==='map'&&map&&typeof map.unproject==='function'){
+          var rect=target.getBoundingClientRect();var p=map.unproject([event.clientX-rect.left,event.clientY-rect.top]);
+          active=false;if(pegmanBtn)pegmanBtn.classList.remove('on');if(map.getCanvas)map.getCanvas().style.cursor='';showAt(p.lat,p.lng);
+        }
+      });
     });
   }
 
@@ -89,6 +102,8 @@
 
   function hideView() {
     if (overlay) overlay.classList.remove('open');
+    active=false;if(pegmanBtn)pegmanBtn.classList.remove('on');
+    if (map && map.getCanvas) map.getCanvas().style.cursor='';
     hideStatus();
     if (panorama && typeof panorama.setVisible === 'function') panorama.setVisible(false);
     if (map && map.getCanvas) map.getCanvas().style.cursor = active ? 'crosshair' : '';
@@ -245,15 +260,13 @@
     attach: function (m) { map = m; install(); },
     show: showAt,
     openCurrent: function () {
-      var m = map || window.map || window.maplibre;
-      if (!m || typeof m.getCenter !== 'function') {
-        showStatus('TrackMeNow map is not ready yet.');
-        return;
-      }
-      var c = m.getCenter();
-      showAt(Number(c.lat), Number(c.lng));
+      ensureDom();
+      if(overlay) overlay.classList.remove('open');
+      active=true;if(pegmanBtn)pegmanBtn.classList.add('on');
+      if(map&&map.getCanvas)map.getCanvas().style.cursor='crosshair';
     },
     handleEarthClick: function(pos){if(pos&&Number.isFinite(Number(pos.lat))&&Number.isFinite(Number(pos.lng)))showAt(Number(pos.lat),Number(pos.lng));},
-    hide: hideView
+    hide: hideView,
+    activate: function(){ensureDom();active=true;if(pegmanBtn)pegmanBtn.classList.add('on');if(map&&map.getCanvas)map.getCanvas().style.cursor='crosshair';}
   };
 })();
