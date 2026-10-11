@@ -19,7 +19,7 @@
   var requestToken = 0;
 
   function key() {
-    return String(window.TM_GOOGLE_MAPS_API_KEY || window.TM_GOOGLE_MAPS_3D_API_KEY || '').trim();
+    return String(window.TM_GOOGLE_MAPS_API_KEY || '').trim();
   }
 
   function ensureDom() {
