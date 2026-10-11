@@ -181,17 +181,36 @@ function drawMap(p){
  items.forEach(k=>g.append(card(k,'Select this map view.',()=>mapAction(k),'SELECT')));p.append(g);
 }
 function mapAction(k){
- if(k==='GOOGLE EARTH'){if(window.TrackMeNowStreetView)window.TrackMeNowStreetView.hide();if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.open();return;}
- if(k==='STREET VIEW'){if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();if(window.TrackMeNowStreetView&&window.TrackMeNowStreetView.activate)window.TrackMeNowStreetView.activate();return;}
+ if(k==='GOOGLE EARTH'){
+   if(window.TrackMeNowStreetView)window.TrackMeNowStreetView.hide();
+   if(window.TrackMeNowGoogleEarth&&window.TrackMeNowGoogleEarth.open)return Promise.resolve(window.TrackMeNowGoogleEarth.open()).catch(e=>setStatus('GOOGLE EARTH · '+(e.message||'3D Tiles unavailable'),false));
+   return;
+ }
+ if(k==='STREET VIEW'){
+   if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();
+   if(window.TrackMeNowStreetView&&window.TrackMeNowStreetView.activate)window.TrackMeNowStreetView.activate();
+   return;
+ }
  if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();
  if(window.TrackMeNowStreetView&&k!=='STREET VIEW')window.TrackMeNowStreetView.hide();
- const e=engine();if(!e)return;
- if(k==='SATELLITE')oldClick('[data-bar="satellite"]');
+
+ // These map tabs are real data/render actions, not dead buttons.
+ // Google Satellite uses the Map Tiles API; 3D uses Photorealistic 3D Tiles.
+ if(k==='SATELLITE'&&window.TrackMeNowGoogleMapTiles&&window.TrackMeNowGoogleMapTiles.open2D){
+   window.TrackMeNowGoogleMapTiles.open2D('satellite').catch(e=>setStatus('SATELLITE · '+(e.message||'Google tile fetch failed'),false));
+   return;
+ }
+ if(k==='3D'&&window.TrackMeNowGoogleMapTiles&&window.TrackMeNowGoogleMapTiles.open3D){
+   window.TrackMeNowGoogleMapTiles.open3D().catch(e=>setStatus('3D · '+(e.message||'Google 3D Tiles fetch failed'),false));
+   return;
+ }
+
+ const e=engine();
+ if(!e){setStatus(k+' · map engine is not ready yet',false);return;}
  if(k==='LIVE')e.selectWeather('live');
  if(k==='RADAR')e.selectWeather('radar');
  if(k==='DAY / NIGHT'){window.__tmDayNightMode=!window.__tmDayNightMode;e.setDayNight(window.__tmDayNightMode);}
  if(k==='FLAT'){e.setScale('earth');e.setEarthMode('flat');}
- if(k==='3D'){e.setScale('earth');e.setEarthMode('globe');}
  if(k==='WEATHER')e.selectWeather('precip');
 }
 function drawSpace(p){
