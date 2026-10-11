@@ -1,5 +1,5 @@
-/* TrackMeNow — immersive Google Street View.
- * Click the Pegman button, then click a location on the TrackMeNow map.
+/* TrackMeNow — Street View mode inside the common landing workspace.
+ * Street View is opened from MAP → STREET VIEW; no floating Pegman/DRAG control is used.
  * Uses the Maps JavaScript API Street View panorama (not a small Embed API iframe),
  * so the panorama fills the viewport and supports Google-style navigation controls.
  */
@@ -12,11 +12,10 @@
   var overlay = null;
   var panoramaHost = null;
   var statusEl = null;
-    var closeBtn = null;
+  var closeBtn = null;
   var panorama = null;
   var apiPromise = null;
   var requestToken = 0;
-  var wasDragged = false;
 
   function key() {
     return String(window.TM_GOOGLE_MAPS_API_KEY || window.TM_GOOGLE_MAPS_3D_API_KEY || '').trim();
@@ -67,27 +66,12 @@
     overlay.appendChild(statusEl);
     document.body.appendChild(overlay);
 
-    toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.id = 'tm-streetview-toggle';
-    toggle.textContent = '🚶';
-    toggle.title = 'Drag Pegman onto the map for Street View, or click then select a location';
-    toggle.setAttribute('aria-label', 'Drag Pegman onto the map for Street View');
-    toggle.draggable = true;
-    document.body.appendChild(toggle);
-    closeBtn.addEventListener("click", hideView);
+    closeBtn.addEventListener('click', hideView);
     var targets=[document.getElementById('map'),document.getElementById('tm-google-earth-stage')];
-    targets.forEach(function(target){if(!target)return;
-      target.addEventListener('dragover',function(event){event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect='copy';});
-      target.addEventListener('drop',function(event){event.preventDefault();
-        if(target.id==='map'&&map&&typeof map.unproject==='function'){
-          var rect=target.getBoundingClientRect();var p=map.unproject([event.clientX-rect.left,event.clientY-rect.top]);
-          active=false;if(toggle)toggle.classList.remove('on');showAt(p.lat,p.lng);return;
-        }
-        active=true;if(toggle)toggle.classList.add('on');
-        if(window.TrackMeNowGoogleEarth&&window.TrackMeNowGoogleEarth.setStatus)window.TrackMeNowGoogleEarth.setStatus('Pegman ready · click the exact point on 3D Earth to open Street View.');
-        else showStatus('Pegman is ready. Click the exact point on the map to open Street View.');
-      });
+    targets.forEach(function(target){
+      if(!target)return;
+      target.addEventListener('dragover',function(event){event.preventDefault();});
+      target.addEventListener('drop',function(event){event.preventDefault();});
     });
   }
 
