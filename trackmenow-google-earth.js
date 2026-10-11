@@ -210,7 +210,7 @@
     overlay.style.display = 'block';
     setStatus('Loading Google 3D Earth…', false);
     try {
-      await createOrUpdateMap();
+      if (window.TrackMeNowGoogleMapTiles && window.TrackMeNowGoogleMapTiles.open) { await window.TrackMeNowGoogleMapTiles.open(); overlay.style.display = 'none'; return; } throw new Error('Google Map Tiles renderer is not available.');
     } catch (err) {
       setStatus((err && err.message ? err.message : 'Google 3D Earth could not be loaded.') +
         ' The existing TrackMeNow map remains underneath. Select another MAP subtab to return. Check Maps JavaScript API and Maps 3D access for this key.', true);
