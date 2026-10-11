@@ -196,8 +196,8 @@ function mapAction(k){
 
  // These map tabs are real data/render actions, not dead buttons.
  // Google Satellite uses the Map Tiles API; 3D uses Photorealistic 3D Tiles.
- if(k==='SATELLITE'&&window.TrackMeNowGoogleMapTiles&&window.TrackMeNowGoogleMapTiles.open2D){
-   window.TrackMeNowGoogleMapTiles.open2D('satellite').catch(e=>setStatus('SATELLITE · '+(e.message||'Google tile fetch failed'),false));
+ if(['SATELLITE','ROADMAP','TERRAIN'].includes(k)&&window.TrackMeNowGoogleMapTiles&&window.TrackMeNowGoogleMapTiles.open2D){
+   window.TrackMeNowGoogleMapTiles.open2D(k.toLowerCase()).catch(e=>setStatus(k+' · '+(e.message||'Google tile fetch failed'),false));
    return;
  }
  if(k==='3D'&&window.TrackMeNowGoogleMapTiles&&window.TrackMeNowGoogleMapTiles.open3D){
