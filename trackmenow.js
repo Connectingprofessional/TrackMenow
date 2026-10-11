@@ -1625,7 +1625,14 @@
     // The base map must never wait for optional weather/radar services.
     const date = gibsDateStr(-1);
     const gibsAvailable = false;
-    const radarPath = null;
+    let radarPath = null;
+    try {
+      const rv = await fetch('https://api.rainviewer.com/public/weather-maps.json', {cache:'no-store'});
+      const rd = await rv.json();
+      const past = rd && rd.radar && Array.isArray(rd.radar.past) ? rd.radar.past : [];
+      const frame = past[past.length - 1];
+      if (frame && frame.path && rd.host) radarPath = String(rd.host).replace(/\/$/,'') + String(frame.path) + '/256/{z}/{x}/{y}/2/1_0.png';
+    } catch (e) { radarPath = null; }
     updateTimeLabel();
     const style = {
       version: 8,
