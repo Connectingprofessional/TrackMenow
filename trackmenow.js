@@ -10,7 +10,7 @@
   function tmAudit(event, tab='', sub='', detail=''){
     try{
       const d=String(detail||'').slice(0,500);
-      navigator.sendBeacon?.(AUDIT_API, new Blob([JSON.stringify({event,tab,sub,detail:d})],{type:'application/json'}));
+      navigator.sendBeacon?.(AUDIT_API, new Blob([JSON.stringify({event,tab,sub,detail:d})],{type:'text/plain;charset=UTF-8'}));
     }catch(_){}
   }
   function tmAuditSafeValue(v){
