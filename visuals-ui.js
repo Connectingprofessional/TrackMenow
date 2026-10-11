@@ -182,7 +182,7 @@ function drawMap(p){
 }
 function mapAction(k){
  if(k==='GOOGLE EARTH'){if(window.TrackMeNowStreetView)window.TrackMeNowStreetView.hide();if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.open();return;}
- if(k==='STREET VIEW'){if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();if(window.TrackMeNowStreetView&&window.TrackMeNowStreetView.openCurrent)window.TrackMeNowStreetView.openCurrent();return;}
+ if(k==='STREET VIEW'){if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();if(window.TrackMeNowStreetView&&window.TrackMeNowStreetView.activate)window.TrackMeNowStreetView.activate();return;}
  if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();
  if(window.TrackMeNowStreetView&&k!=='STREET VIEW')window.TrackMeNowStreetView.hide();
  const e=engine();if(!e)return;
