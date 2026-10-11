@@ -56,12 +56,6 @@ function status(text){const x=el('div',{class:'tm-status'},text);return x}
 function setStatus(text,ok){const p=document.querySelector('#tm-panel .tm-panel-body');if(!p)return;const old=p.querySelector('.tm-global-feed-status');if(old)old.remove();const x=status(text);x.classList.add('tm-global-feed-status',ok?'ok':'error');p.append(x)}
 function setPanelTitle(){const h=$('#tm-panel-title');if(h)h.textContent=state.tab+' / '+state.sub+(state.stack?' / '+state.stack:'')}
 function build(){
- const top=el('header',{id:'tm-top'});
- const brand=el('div',{class:'tm-brand'});brand.append(document.createTextNode('TRACKME'));const brandSpan=el('span',{},'NOW');brand.append(brandSpan);
- const search=el('div',{class:'tm-search'}),inp=el('input',{id:'tm-global-search',placeholder:'Search city, place, device, cell ID, aircraft, IP…',autocomplete:'off'}),go=el('button',{type:'button'},'SEARCH');
- go.onclick=()=>doSearch(inp.value);inp.onkeydown=e=>{if(e.key==='Enter')doSearch(inp.value)};search.append(inp,go);
- const admin=el('button',{id:'tm-admin',type:'button','aria-label':'Admin'},'⚙');admin.onclick=openAdmin;
- top.append(brand,search,admin);document.body.append(top);
  const shell=el('div',{id:'tm-shell'});
  const main=el('nav',{id:'tm-main-tabs'});Object.keys(T).forEach(k=>{const b=el('button',{class:'tm-tab',type:'button'},k);b.onclick=()=>{if(k!=='MAP'&&window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();state.tab=k;state.sub=T[k][0];state.stack=null;state.panel=false;logUi('tab',k,'');render()};main.append(b)});
  const sub=el('div',{id:'tm-subbar'});
