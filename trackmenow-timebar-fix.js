@@ -161,7 +161,7 @@
 
   function hookMapTrail() {
     var m = map();
-    if (!m || m.__tmTrail) return !!m;
+    if (!m || typeof m.on !== "function" || m.__tmTrail) return !!m;
     m.__tmTrail = true;
     recordPoint();
     m.on("moveend", recordPoint);
