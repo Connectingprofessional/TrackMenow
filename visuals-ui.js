@@ -4,7 +4,7 @@
 const API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?location.origin:'https://wispy-bush-9aee.recreationeeraj.workers.dev';
 const isLocal=location.hostname==='localhost'||location.hostname==='127.0.0.1';
 const T={
- MAP:['GOOGLE EARTH','STREET VIEW','SATELLITE','ROADMAP','TERRAIN','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER','OVERVIEW','LAYERS','INTELLIGENCE','SEARCH'],
+ MAP:['GOOGLE EARTH','SATELLITE','ROADMAP','TERRAIN','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER','OVERVIEW','LAYERS','INTELLIGENCE','SEARCH'],
  SPACE:['SOLAR SYSTEM','EARTH','MOON','MARS','SATELLITES','ISS / SPACE STATIONS','EARTH OBSERVATION','SPACE WEATHER'],
  TRANSIT:['ALL TRANSPORT','AIR','SHIP','TAXI','BUS','RAILWAY','METRO','BOAT','PERSONAL JET','CAR','BIKES'],
  WEATHER:['NATURAL CALAMITIES','WEATHER REPORT'],
