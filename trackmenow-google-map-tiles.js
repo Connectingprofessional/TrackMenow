@@ -8,6 +8,7 @@
   'use strict';
 
   var API = window.TM_API_BASE || 'https://wispy-bush-9aee.recreationeeraj.workers.dev';
+  var keyPromise = null;
   var overlay = null, viewer = null, tileset = null, imageryLayer = null;
   var active = false, loading = false, mode = '3d';
   var GOOGLE_KEY = '';
@@ -76,6 +77,8 @@
   }
 
   async function resolveKey() {
+    if (keyPromise) return keyPromise;
+    keyPromise = (async function(){
     var direct = String(window.TM_GOOGLE_MAPS_API_KEY || '').trim(); if (!direct) { try { direct = String(localStorage.getItem('TM_GOOGLE_MAPS_API_KEY') || '').trim(); } catch (e) {} }
     if (direct) return direct;
     try {
@@ -89,6 +92,10 @@
       }
     } catch (e) {}
     return '';
+    })();
+    var resolved = await keyPromise;
+    if (!resolved) keyPromise = null;
+    return resolved;
   }
 
   function loadCesium() {
@@ -164,7 +171,7 @@
       var probe = null;
       setStatus('Loading Google Photorealistic 3D Earth…');
       if (Cesium.Cesium3DTileset.fromUrl) {
-        tileset = await Cesium.Cesium3DTileset.fromUrl(tilesUrl,{showCreditsOnScreen:true,skipLevelOfDetail:true});
+        tileset = await Cesium.Cesium3DTileset.fromUrl(tilesUrl,{showCreditsOnScreen:true,skipLevelOfDetail:true,cacheBytes:268435456,maximumCacheOverflowBytes:67108864});
       } else {
         tileset = new Cesium.Cesium3DTileset({url:tilesUrl,showCreditsOnScreen:true,skipLevelOfDetail:true});
         if (tileset.readyPromise) await tileset.readyPromise;
@@ -212,7 +219,7 @@
     } catch(e) {
       console.error('[TrackMeNow] Google Map Tiles error', e);
       if (viewer) { viewer.scene.globe.show = false; viewer.scene.requestRender(); }
-      setStatus((e && e.message ? e.message : 'Google Map Tiles failed to load.') + ' Enable Map Tiles API + billing and use a Map Tiles-compatible key.',true);
+      setStatus((e && e.message ? e.message : 'Google Map Tiles failed to load.') + ' Check the single Google key, Map Tiles API, billing, and HTTP referrer restrictions.',true);
     } finally { loading=false; }
   }
 
