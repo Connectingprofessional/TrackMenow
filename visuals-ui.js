@@ -554,17 +554,23 @@ function drawGeofence(p){
  rb.onclick=()=>{rb.disabled=true;refresh().finally(()=>rb.disabled=false)};
  p.append(rb);refresh();
 }
-function cameraBbox(){const m=map();if(!m)return null;const b=m.getBounds();return [b.getWest(),b.getSouth(),b.getEast(),b.getNorth()].join(',');}
-let cameraLoadTimer=null,cameraLoadSeq=0;
-function scheduleCameraAtlas(delay=250){clearTimeout(cameraLoadTimer);cameraLoadTimer=setTimeout(()=>loadCameraAtlas(),delay);}
-async function loadCameraAtlas(){const m=map();if(!m)return;const bbox=cameraBbox();if(!bbox)return;const seq=++cameraLoadSeq;try{const j=await api('/api/cameras?bbox='+encodeURIComponent(bbox));if(seq!==cameraLoadSeq)return;if(!m.getSource('tm-cameras-atlas'))m.addSource('tm-cameras-atlas',{type:'geojson',data:{type:'FeatureCollection',features:[]}});if(!m.getLayer('tm-cameras-atlas')){m.addLayer({id:'tm-cameras-atlas',type:'circle',source:'tm-cameras-atlas',paint:{'circle-radius':['interpolate',['linear'],['zoom'],2,3,8,5,14,8],'circle-color':'#67d5ff','circle-stroke-color':'#071018','circle-stroke-width':1.5,'circle-opacity':.9}});m.on('click','tm-cameras-atlas',e=>{const f=e.features&&e.features[0],p=f&&f.properties;if(!p)return;const u=p.imageUrl||p.streamUrl||p.sourceUrl;new maplibregl.Popup({closeButton:true,maxWidth:'300px'}).setLngLat(e.lngLat).setHTML('<b>'+String(p.title||'PUBLIC CAMERA').replace(/[<>]/g,'')+'</b><div style="opacity:.65;font-size:11px;margin-top:4px">'+String(p.provider||'Public source').replace(/[<>]/g,'')+'</div><div style="font-size:11px;margin-top:5px">'+String(p.location||'').replace(/[<>]/g,'')+'</div><div style="opacity:.6;font-size:10px;margin-top:5px">Observed '+(p.observedAt?new Date(p.observedAt).toLocaleString():'—')+'</div>'+((u)?'<button id="tm-open-camera" style="margin-top:8px">OPEN SOURCE</button>':'')).addTo(m);setTimeout(()=>{const b=document.getElementById('tm-open-camera');if(b)b.onclick=()=>window.open(u,'_blank','noopener,noreferrer')},0)});/* Camera details are click-only; no hover inspection. */}m.getSource('tm-cameras-atlas').setData({type:'FeatureCollection',features:j.features||[]});m.setLayoutProperty('tm-cameras-atlas','visibility',(j.features||[]).length?'visible':'none');const s=(j.sources||[])[0];setStatus('CAMERAS · '+(s&&s.count||0).toLocaleString()+' · '+(s&&s.source||'public feed')+' · '+(s&&s.status||'STATUS'),!!(j.features||[]).length)}catch(e){setStatus('CAMERAS · '+(e.message||'source unavailable'),false)}}
-function bindCameraMap(){
- try{
-  const m=map(); if(!m||m.__tmCameraMapBound)return;
-  m.__tmCameraMapBound=true;
-  scheduleCameraAtlas(700);
-  m.on('moveend',()=>scheduleCameraAtlas(450));
- }catch(e){}
+function cameraBbox(){
+    var m=window.map||window.maplibre||window.TM_MAP;
+    if(!m) return '';
+    if(typeof m.getBounds==='function'){
+      try{
+        var b=m.getBounds(), sw=b.getSouthWest(), ne=b.getNorthEast();
+        return [sw.lng,sw.lat,ne.lng,ne.lat].join(',');
+      }catch(e){}
+    }
+    if(typeof m.getCenter==='function' && typeof m.getZoom==='function'){
+      try{
+        var c=m.getCenter(), z=Number(m.getZoom()||3), span=Math.max(0.1,180/Math.pow(2,z));
+        return [c.lng-span,c.lat-span,c.lng+span,c.lat+span].join(',');
+      }catch(e){}
+    }
+    return '';
+  }catch(e){}
 }
 function drawVisuals(p){
  bindCameraMap();
