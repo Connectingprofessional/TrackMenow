@@ -58,20 +58,14 @@ jobs:
                   "Google Maps key injection failed: no key found. Add GOOGLE_MAPS_API_KEY, TM_GOOGLE_MAPS_API_KEY, "
                   "or TM_GOOGLE_MAPS_3D_API_KEY as a GitHub Actions repository secret or github-pages environment variable."
               )
-          # Use one valid browser-restricted key for both consumers. Never print the key.
-          keys = {
-              "TM_GOOGLE_MAPS_3D_API_KEY": primary,
-              "TM_GOOGLE_MAPS_API_KEY": primary,
-          }
-          for name, secret in keys.items():
-              marker = "window." + name + "='';"
-              if marker not in html:
-                  raise SystemExit(name + " placeholder not found in index.html")
-              html = html.replace(marker, "window." + name + "=" + json.dumps(secret.strip()) + ";", 1)
-          # Validate injection without exposing the key in workflow logs.
-          for name in keys:
-              if ("window." + name + "=''") in html:
-                  raise SystemExit(name + " remained empty after injection")
+          # TrackMeNow uses ONE Google Maps Platform browser key for the complete Earth workspace.
+          # Inject only the canonical API-key variable; index.html derives the 3D variable from it.
+          marker = "window.TM_GOOGLE_MAPS_API_KEY='';"
+          if marker not in html:
+              raise SystemExit("TM_GOOGLE_MAPS_API_KEY placeholder not found in index.html")
+          html = html.replace(marker, "window.TM_GOOGLE_MAPS_API_KEY=" + json.dumps(primary) + ";", 1)
+          if "window.TM_GOOGLE_MAPS_API_KEY=''" in html:
+              raise SystemExit("TM_GOOGLE_MAPS_API_KEY remained empty after injection")
           target.write_text(html, encoding="utf-8")
           print("Google Maps key injection verified for both browser configuration variables.")
           PY
