@@ -155,23 +155,24 @@
   async function load3D() {
     var x = await ensureViewer(), Cesium=x.Cesium, key=x.key;
     if (imageryLayer) { viewer.imageryLayers.remove(imageryLayer, true); imageryLayer=null; }
-    viewer.scene.globe.show = false;
+    viewer.scene.globe.show = true;
     if (tileset) {
       tileset.show = true;
     } else {
       setStatus('Loading Google Photorealistic 3D Tiles…');
-      tileset = new Cesium.Cesium3DTileset({
-        url:'https://tile.googleapis.com/v1/3dtiles/root.json?key='+encodeURIComponent(key),
-        showCreditsOnScreen:true,
-        skipLevelOfDetail:true
-      });
+      setStatus('Connecting to Google Photorealistic 3D Tiles…');
+      var tilesUrl='https://tile.googleapis.com/v1/3dtiles/root.json?key='+encodeURIComponent(key);
+      if (Cesium.Cesium3DTileset.fromUrl) {
+        tileset = await Cesium.Cesium3DTileset.fromUrl(tilesUrl,{showCreditsOnScreen:true,skipLevelOfDetail:true});
+      } else {
+        tileset = new Cesium.Cesium3DTileset({url:tilesUrl,showCreditsOnScreen:true,skipLevelOfDetail:true});
+        if (tileset.readyPromise) await tileset.readyPromise;
+      }
       viewer.scene.primitives.add(tileset);
-      tileset.loadProgress.addEventListener(function(queued,processing){ if(queued||processing) setStatus('Google Photorealistic 3D Tiles · loading '+queued+' queued'); });
-      await tileset.readyPromise;
-      tileset.loadProgress.addEventListener(function(){ viewer.scene.requestRender(); });
+      if (tileset.loadProgress) tileset.loadProgress.addEventListener(function(queued,processing){ if(queued||processing) setStatus('Google Photorealistic 3D Tiles · loading '+queued+' queued'); viewer.scene.requestRender(); });
     }
     var c=trackCenter();
-    var height=Math.max(35000,900000/Math.max(1,Math.pow(2,trackZoom()-2)));
+    var height=Math.max(12000,500000/Math.max(1,Math.pow(2,trackZoom()-2)));
     viewer.camera.flyTo({
       destination:Cesium.Cartesian3.fromDegrees(c.lng,c.lat,height),
       orientation:{heading:0,pitch:-Cesium.Math.toRadians(62),roll:0},
@@ -179,7 +180,7 @@
       complete:function(){ viewer.scene.requestRender(); }
     });
     viewer.scene.requestRender();
-    setStatus('Google Map Tiles API · PHOTOREALISTIC 3D active. Google imagery coverage/capture dates determine building freshness.');
+    setStatus('Google Map Tiles API · PHOTOREALISTIC 3D active. Earth + Google photorealistic buildings enabled.');
   }
 
   async function load2D(mapType) {
@@ -208,6 +209,7 @@
       else await load2D(next);
     } catch(e) {
       console.error('[TrackMeNow] Google Map Tiles error', e);
+      if (viewer) { viewer.scene.globe.show = true; viewer.scene.requestRender(); }
       setStatus((e && e.message ? e.message : 'Google Map Tiles failed to load.') + ' Check Map Tiles API, billing, key restrictions and referrer configuration.',true);
     } finally { loading=false; }
   }
