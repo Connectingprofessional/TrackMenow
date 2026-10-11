@@ -69,40 +69,42 @@ jobs:
           target.write_text(html, encoding="utf-8")
           print("Google Maps key injection verified for both browser configuration variables.")
           PY
-          cp trackmenow-cameras.js _site/trackmenow-cameras.js
-          cp admin.html _site/admin.html
-          cp trackmenow.js _site/trackmenow.js
-          cp trackmenow-transport-fix.js _site/trackmenow-transport-fix.js
-          cp trackmenow-traffic.js _site/trackmenow-traffic.js
-          cp trackmenow-ux-fix.js _site/trackmenow-ux-fix.js
-          cp trackmenow-panel-fix.js _site/trackmenow-panel-fix.js
-          cp trackmenow-timebar-fix.js _site/trackmenow-timebar-fix.js
-          cp trackmenow-map-runtime.js _site/trackmenow-map-runtime.js
-          cp trackmenow-earth-camera.js _site/trackmenow-earth-camera.js
-          cp trackmenow-buildings.js _site/trackmenow-buildings.js
-          cp trackmenow-streetview.js _site/trackmenow-streetview.js
-          cp trackmenow-google-earth.js _site/trackmenow-google-earth.js
-          cp trackmenow-google-live.js _site/trackmenow-google-live.js
-          cp trackmenow-globe-engine.js _site/trackmenow-globe-engine.js
-          cp trackmenow-icons.js _site/trackmenow-icons.js
-          cp water-effect.js _site/water-effect.js
-          cp visuals-ui.js _site/visuals-ui.js
-          cp visuals.css _site/visuals.css
+          # Copy every top-level JS/CSS/HTML file automatically so a new file added in any
+          # session is deployed without anyone having to remember to list it here by name.
+          # This replaced a hand-maintained cp list that silently dropped new files (e.g.
+          # trackmenow-google-map-tiles.js shipped referenced from index.html but 404ing on
+          # the live site because it was never added to this list).
+          for f in *.js *.css *.html; do
+            case "$f" in
+              index.html) continue ;;
+              '*.js'|'*.css'|'*.html') continue ;; # no matches for that glob
+            esac
+            cp "$f" "_site/$f"
+          done
           mkdir -p _site/data
           if [ -f data/nasa.json ]; then cp data/nasa.json _site/data/nasa.json; fi
-          cp rtc-call.html _site/rtc-call.html
           cp -r vendor/maplibre-gl/. _site/vendor/maplibre-gl/
 
           test -s _site/index.html
           test -s _site/visuals-ui.js
           test -s _site/visuals.css
           test -s _site/trackmenow.js
-          test -s _site/trackmenow-cameras.js
-          test -s _site/trackmenow-earth-camera.js
-          test -s _site/trackmenow-buildings.js
-          test -s _site/trackmenow-streetview.js
-          test -s _site/trackmenow-google-earth.js
           test -s _site/vendor/maplibre-gl/maplibre-gl.js
+
+          # Hard guardrail: every local ./*.js or ./*.css file index.html actually references
+          # must exist in the published _site, or the deploy fails loudly here instead of
+          # shipping a silent 404 that breaks a feature on the live site.
+          python3 - <<'PY'
+          import re, sys
+          from pathlib import Path
+          html = Path("_site/index.html").read_text(encoding="utf-8")
+          refs = re.findall(r'(?:src|href)="\./([^"?]+)(?:\?[^"]*)?"', html)
+          missing = [r for r in sorted(set(refs)) if not Path("_site", r).is_file()]
+          if missing:
+              print("Missing files referenced by index.html:", missing, file=sys.stderr)
+              sys.exit(1)
+          print("All", len(set(refs)), "local files referenced by index.html are present in _site.")
+          PY
 
           echo "TrackMeNow Pages artifact:"
           find _site -maxdepth 2 -type f | sort
