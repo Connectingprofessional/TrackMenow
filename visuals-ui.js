@@ -13,7 +13,7 @@ const T={
  VISUALS:['LIVE','CAMERAS','IMAGES','VIDEOS','CLIPS','HISTORY','USER SHARED'],
  MORE:['ADMIN','SOURCES','STATUS','SETTINGS']
 };
-const state={tab:'MAP',sub:'OVERVIEW',stack:null,period:'DAY',panel:false};
+const state={tab:'MAP',sub:'OVERVIEW',stack:null,period:'DAY',periodOffset:0,panel:false};
 const PHONE_SEARCH_HISTORY_KEY='tmPhoneSearchHistory';
 function phoneMask(v){const d=String(v||'').replace(/\\D/g,'');return d.length>=7?'+'+d.slice(0,2)+'•••••'+d.slice(-3):String(v||'');}
 function getPhoneSearchHistory(){
@@ -309,9 +309,9 @@ function drawWeatherReport(p){
 }
 function renderWeatherReport(p){drawWeatherReport(p)}
 function weatherSelect(k){const e=engine();if(e)e.selectWeather(k);loadWeatherReport()}
-function shiftPeriod(d){const p=$('#tm-panel-body');if(p)loadWeatherReport(d)}
+function shiftPeriod(d){state.periodOffset=(state.periodOffset||0)+Number(d||0);const p=document.querySelector('.tm-panel-body');if(p)loadWeatherReport();}
 async function loadWeatherReport(){const p=document.querySelector('.tm-panel-body');if(!p)return;const m=map();if(!m)return;
- const c=m.getCenter(), now=new Date(), days=state.period==='DAY'?1:state.period==='MONTH'?30:state.period==='QUARTER'?90:365;
+ const c=m.getCenter(), now=new Date(), days=state.period==='DAY'?1:state.period==='MONTH'?30:state.period==='QUARTER'?90:365; now.setDate(now.getDate()+((state.periodOffset||0)*days));
  const end=new Date(now),start=new Date(now);start.setDate(start.getDate()-days);
  const fmt=d=>d.toISOString().slice(0,10);
  const u='https://archive-api.open-meteo.com/v1/archive?latitude='+c.lat.toFixed(3)+'&longitude='+c.lng.toFixed(3)+'&start_date='+fmt(start)+'&end_date='+fmt(end)+'&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto';
