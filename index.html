@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://gibs.earthdata.nasa.gov">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="./vendor/maplibre-gl/maplibre-gl.css">
-<link rel="stylesheet" href="./visuals.css?v=trackmenow-premium-27">
+<link rel="stylesheet" href="./visuals.css?v=trackmenow-premium-28">
 <style>
 *{box-sizing:border-box}
 html,body{height:100%;width:100%;margin:0;background:#05080c;color:#edf4f8;font-family:system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden}
@@ -30,7 +30,7 @@ body{overscroll-behavior:none}
 #tm-shell{display:block!important;visibility:visible!important;opacity:1!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;pointer-events:auto!important;}
 #tm-main-tabs,#tm-subbar{visibility:visible!important;opacity:1!important;}
 #tm-timebar{bottom:calc(var(--tm-dock-h,76px) + 10px)!important;z-index:5000!important}
-#tm-shell{z-index:6000!important}
+#tm-shell{z-index:999999!important;display:block!important;visibility:visible!important;opacity:1!important}
 #tm-panel.open{z-index:6100!important}
 #tm-time-slider{accent-color:#45a8ff}
 #tm-boot{position:fixed;inset:0;z-index:20000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,rgba(20,45,65,.55),rgba(2,6,10,.98) 58%,#010204);color:#eef7fb;transition:opacity .75s ease,visibility .75s ease;overflow:hidden}
@@ -62,6 +62,7 @@ body{overscroll-behavior:none}
 <div id="map"></div>
 <div id="legacy-controls"></div>
 <div id="status">Starting…</div>
+<div id="tm-shell" aria-label="TrackMeNow navigation"><nav id="tm-main-tabs"><button class="tm-tab" type="button">MAP</button><button class="tm-tab" type="button">SPACE</button><button class="tm-tab" type="button">TRANSIT</button><button class="tm-tab" type="button">WEATHER</button><button class="tm-tab" type="button">COMMUNICATION</button><button class="tm-tab" type="button">TRACK</button><button class="tm-tab" type="button">VISUALS</button><button class="tm-tab" type="button">MORE</button></nav><div id="tm-subbar"><button class="tm-sub active" type="button">OVERVIEW</button></div><div class="tm-zoom-common"></div><section id="tm-panel"><div class="tm-panel-head"><div id="tm-panel-title" class="tm-panel-title">MAP / OVERVIEW</div><div class="tm-panel-meta">LIVE / PUBLIC / CONSENT-BASED</div><button class="tm-close" type="button">×</button></div></section></div>
 <script>
 window.TM_API_BASE='https://wispy-bush-9aee.recreationeeraj.workers.dev';
 window.TM_MOVEMENT_API_BASE=window.TM_API_BASE;
@@ -84,7 +85,7 @@ window.setTimeout(function(){var b=document.getElementById('tm-boot');if(b&&!b.c
 <script src="./trackmenow-panel-fix.js?v=19"></script>
 <script src="./trackmenow-timebar-fix.js?v=19"></script>
 <script src="./trackmenow.js?v=radar-live-1"></script>
-<script src="./visuals-ui.js?v=trackmenow-premium-33"></script>
+<script src="./visuals-ui.js?v=trackmenow-premium-34"></script>
 <script src="./trackmenow-map-runtime.js?v=5"></script>
 <script src="./trackmenow-earth-camera.js?v=2"></script>
 <script src="./trackmenow-buildings.js?v=1"></script>
