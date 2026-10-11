@@ -123,25 +123,28 @@
     if (window.google && window.google.maps && typeof window.google.maps.importLibrary === 'function') {
       return;
     }
+    // Shared with trackmenow-google-live.js: only one <script> tag for the Google Maps
+    // JavaScript API may ever be injected, or Google throws "included the Google Maps
+    // JavaScript API multiple times" and both callers end up with a broken half-loaded API.
+    // window.__tmGoogleMapsApiPromise is the single source of truth for "is it loading/loaded",
+    // and its libraries= list below must be the UNION of everything either file ever needs
+    // (maps3d for this file, marker+streetView for trackmenow-google-live.js), since whichever
+    // overlay opens first is the one that decides which libraries actually get loaded.
     if (apiPromise) return apiPromise;
+    if (window.__tmGoogleMapsApiPromise) { apiPromise = window.__tmGoogleMapsApiPromise; return apiPromise; }
     var key = await resolveKey();
     if (!key) throw new Error('Google 3D Maps browser key is unavailable from both the published build and Worker configuration.');
     apiPromise = new Promise(function (resolve, reject) {
-      var existing = document.querySelector('script[data-tm-google-3d-api]');
-      if (existing) {
-        existing.addEventListener('load', resolve, { once: true });
-        existing.addEventListener('error', function () { reject(new Error('Google Maps JavaScript API failed to load.')); }, { once: true });
-        return;
-      }
       var script = document.createElement('script');
       script.dataset.tmGoogle3dApi = '1';
       script.async = true;
       script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) +
-        '&v=alpha&loading=async&libraries=maps3d';
+        '&v=beta&loading=async&libraries=maps3d,marker,streetView';
       script.onload = resolve;
       script.onerror = function () { reject(new Error('Google Maps JavaScript API failed to load. Check key restrictions and API access.')); };
       document.head.appendChild(script);
     });
+    window.__tmGoogleMapsApiPromise = apiPromise;
     return apiPromise;
   }
 
@@ -200,6 +203,9 @@
 
   async function openEarth() {
     ensureUI();
+    if (window.TrackMeNowGoogleLiveMap && window.TrackMeNowGoogleLiveMap.isActive && window.TrackMeNowGoogleLiveMap.isActive()) {
+      window.TrackMeNowGoogleLiveMap.close();
+    }
     active = true;
     overlay.style.display = 'block';
     setStatus('Loading Google 3D Earth…', false);
@@ -226,8 +232,10 @@
       setStatus: function (message) { setStatus(message, false); },
       getDropPosition: function () { return lastClickedPosition || (map3d && map3d.center ? { lat: map3d.center.lat, lng: map3d.center.lng } : null); }
     };
-    // Start with Google Maps Platform 3D Maps on the landing page; keep the legacy map underneath as fallback.
-    window.setTimeout(function () { openEarth(); }, 900);
+    // Opt-in only: the TrackMeNow map stays the default view. Auto-opening this (an earlier
+    // version used a 900ms setTimeout) buried the entire existing app under this full-screen
+    // overlay the instant a key was configured, breaking every other control on the page.
+    // Open this from the "GOOGLE EARTH" map tab or the "3D EARTH" button instead.
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

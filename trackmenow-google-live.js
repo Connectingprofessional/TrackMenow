@@ -51,12 +51,17 @@
   }
   async function loadMaps(){
     if(window.google&&window.google.maps&&window.google.maps.Map)return;
+    // Shared with trackmenow-google-earth.js: only one Google Maps JS <script> tag may ever be
+    // injected, or Google throws "included the Google Maps JavaScript API multiple times" and
+    // both overlays end up with a broken, half-loaded API object. The libraries= list is the
+    // UNION of what both files need (marker+streetView here, maps3d for google-earth.js),
+    // since whichever overlay opens first decides what actually gets loaded.
     if(window.__tmGoogleMapsApiPromise)return window.__tmGoogleMapsApiPromise;
     var k=await resolveKey();
     if(!k)throw new Error('Google Maps JavaScript API key is unavailable from the published build and secure Worker configuration.');
     apiPromise=new Promise(function(resolve,reject){
       var s=document.createElement('script');s.async=true;s.defer=true;
-      s.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(k)+'&v=weekly&loading=async&libraries=marker,streetView';
+      s.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(k)+'&v=beta&loading=async&libraries=maps3d,marker,streetView';
       s.onload=resolve;s.onerror=function(){reject(new Error('Google Maps failed to load. Check API enablement, billing and HTTP referrer restrictions.'));};
       document.head.appendChild(s);
     });
@@ -189,6 +194,8 @@
     },function(e){gpsWatch=null; var msg=e && e.code===1 ? 'GPS permission was denied. Allow Location for this site in the browser address-bar settings, then press LIVE GPS again.' : (e && e.message ? e.message : 'Location unavailable'); status('GPS unavailable: '+msg);},{enableHighAccuracy:true,maximumAge:3000,timeout:15000});
   }
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-  function init(){ensureUI();window.TrackMeNowGoogleLiveMap={open:openMap,close:closeMap,isActive:function(){return active;}};if(key())openMap();}
+  // Opt-in only: open via the floating "GOOGLE MAP · LIVE" button. Auto-opening here the instant
+  // a key is configured buried the entire existing TrackMeNow app under this full-screen overlay.
+  function init(){ensureUI();window.TrackMeNowGoogleLiveMap={open:openMap,close:closeMap,isActive:function(){return active;}};}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
