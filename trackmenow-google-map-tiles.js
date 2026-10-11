@@ -236,6 +236,18 @@
     await switchMode(mode);
   }
 
+  async function open2D(mapType) {
+    ensureUI();
+    if (window.TrackMeNowGoogleEarth && window.TrackMeNowGoogleEarth.isActive && window.TrackMeNowGoogleEarth.isActive()) window.TrackMeNowGoogleEarth.close();
+    if (window.TrackMeNowGoogleLiveMap && window.TrackMeNowGoogleLiveMap.isActive && window.TrackMeNowGoogleLiveMap.isActive()) window.TrackMeNowGoogleLiveMap.close();
+    active = true;
+    mode = mapType;
+    overlay.classList.add('active');
+    setStatus('Fetching Google '+String(mapType).toUpperCase()+' Map Tiles…');
+    await switchMode(mapType);
+    return viewer;
+  }
+
   async function open3D() {
     ensureUI();
     if (window.TrackMeNowGoogleLiveMap && window.TrackMeNowGoogleLiveMap.isActive && window.TrackMeNowGoogleLiveMap.isActive()) {
@@ -256,7 +268,7 @@
 
   function init() {
     ensureUI();
-    window.TrackMeNowGoogleMapTiles = {open:openTiles,open3D:open3D,close:closeTiles,isActive:function(){return active;}};
+    window.TrackMeNowGoogleMapTiles = {open:openTiles,open3D:open3D,open2D:open2D,close:closeTiles,isActive:function(){return active;}};
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
