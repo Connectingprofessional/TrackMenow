@@ -4,7 +4,7 @@
 const API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?location.origin:'https://wispy-bush-9aee.recreationeeraj.workers.dev';
 const isLocal=location.hostname==='localhost'||location.hostname==='127.0.0.1';
 const T={
- MAP:['GOOGLE EARTH','STREET VIEW','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER','OVERVIEW','LAYERS','INTELLIGENCE','SEARCH'],
+ MAP:['GOOGLE EARTH','STREET VIEW','SATELLITE','ROADMAP','TERRAIN','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER','OVERVIEW','LAYERS','INTELLIGENCE','SEARCH'],
  SPACE:['SOLAR SYSTEM','EARTH','MOON','MARS','SATELLITES','ISS / SPACE STATIONS','EARTH OBSERVATION','SPACE WEATHER'],
  TRANSIT:['ALL TRANSPORT','AIR','SHIP','TAXI','BUS','RAILWAY','METRO','BOAT','PERSONAL JET','CAR','BIKES'],
  WEATHER:['NATURAL CALAMITIES','WEATHER REPORT'],
@@ -71,7 +71,7 @@ function build(){
 }
 function render(){
  const main=$('#tm-main-tabs'),sub=$('#tm-subbar'),panel=$('#tm-panel');Array.from(main.children).forEach(b=>b.classList.toggle('active',b.textContent===state.tab));
- sub.innerHTML='';T[state.tab].forEach(s=>{const b=el('button',{class:'tm-sub',type:'button'},s);b.classList.toggle('active',s===state.sub);b.onclick=()=>{state.sub=s;state.stack=null;if(state.tab==='MAP'&&['GOOGLE EARTH','STREET VIEW','SATELLITE','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER'].includes(s)){state.panel=false;mapAction(s)}else{if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();state.panel=true;}logUi('subtab',state.tab,s);render()};sub.append(b)});
+ sub.innerHTML='';T[state.tab].forEach(s=>{const b=el('button',{class:'tm-sub',type:'button'},s);b.classList.toggle('active',s===state.sub);b.onclick=()=>{state.sub=s;state.stack=null;if(state.tab==='MAP'&&['GOOGLE EARTH','STREET VIEW','SATELLITE','ROADMAP','TERRAIN','LIVE','3D','FLAT','RADAR','DAY / NIGHT','WEATHER'].includes(s)){state.panel=false;mapAction(s)}else{if(window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();state.panel=true;}logUi('subtab',state.tab,s);render()};sub.append(b)});
  panel.classList.toggle('open',state.panel);setPanelTitle();if(state.panel)draw(panel);
  requestAnimationFrame(()=>document.documentElement.style.setProperty('--tm-dock-h',($('#tm-shell').offsetHeight||74)+'px'));
 }
