@@ -576,7 +576,6 @@ function cameraBbox(){
       }catch(e){}
     }
     return '';
-  }catch(e){}
 }
 function drawVisuals(p){
  bindCameraMap();
