@@ -56,12 +56,24 @@ function status(text){const x=el('div',{class:'tm-status'},text);return x}
 function setStatus(text,ok){const p=document.querySelector('#tm-panel .tm-panel-body');if(!p)return;const old=p.querySelector('.tm-global-feed-status');if(old)old.remove();const x=status(text);x.classList.add('tm-global-feed-status',ok?'ok':'error');p.append(x)}
 function setPanelTitle(){const h=$('#tm-panel-title');if(h)h.textContent=state.tab+' / '+state.sub+(state.stack?' / '+state.stack:'')}
 function build(){
- const shell=el('div',{id:'tm-shell'});
- const main=el('nav',{id:'tm-main-tabs'});Object.keys(T).forEach(k=>{const b=el('button',{class:'tm-tab',type:'button'},k);b.onclick=()=>{if(k!=='MAP'&&window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();state.tab=k;state.sub=T[k][0];state.stack=null;state.panel=false;logUi('tab',k,'');render()};main.append(b)});
- const sub=el('div',{id:'tm-subbar'});
- const zoom=el('div',{class:'tm-zoom-common'});[['−',-1],['+',1]].forEach(([txt,d])=>{const b=el('button',{type:'button'},txt);b.onclick=()=>engine()&&engine().zoomBy(d);zoom.append(b)});
- const panel=el('section',{id:'tm-panel'});const head=el('div',{class:'tm-panel-head'}),title=el('div',{id:'tm-panel-title',class:'tm-panel-title'}),meta=el('div',{class:'tm-panel-meta'},'LIVE / PUBLIC / CONSENT-BASED'),close=el('button',{class:'tm-close',type:'button'},'×');close.onclick=()=>{state.panel=false;render()};head.append(title,meta,close);panel.append(head);
- shell.append(main,sub,zoom,panel);document.body.append(shell);render();
+ const shell=document.getElementById('tm-shell')||el('div',{id:'tm-shell'});
+ let main=shell.querySelector('#tm-main-tabs');
+ if(!main){main=el('nav',{id:'tm-main-tabs'});shell.append(main);}
+ main.innerHTML='';
+ Object.keys(T).forEach(k=>{const b=el('button',{class:'tm-tab',type:'button'},k);b.onclick=()=>{if(k!=='MAP'&&window.TrackMeNowGoogleEarth)window.TrackMeNowGoogleEarth.close();state.tab=k;state.sub=T[k][0];state.stack=null;state.panel=false;logUi('tab',k,'');render()};main.append(b)});
+ let sub=shell.querySelector('#tm-subbar');
+ if(!sub){sub=el('div',{id:'tm-subbar'});shell.append(sub);}
+ let zoom=shell.querySelector('.tm-zoom-common');
+ if(!zoom){zoom=el('div',{class:'tm-zoom-common'});shell.append(zoom);}
+ if(!zoom.children.length)[['−',-1],['+',1]].forEach(([txt,d])=>{const b=el('button',{type:'button'},txt);b.onclick=()=>engine()&&engine().zoomBy(d);zoom.append(b)});
+ let panel=shell.querySelector('#tm-panel');
+ if(!panel){
+   panel=el('section',{id:'tm-panel'});
+   const head=el('div',{class:'tm-panel-head'}),title=el('div',{id:'tm-panel-title',class:'tm-panel-title'}),meta=el('div',{class:'tm-panel-meta'},'LIVE / PUBLIC / CONSENT-BASED'),close=el('button',{class:'tm-close',type:'button'},'×');
+   close.onclick=()=>{state.panel=false;render()};head.append(title,meta,close);panel.append(head);shell.append(panel);
+ }
+ if(!shell.parentNode)document.body.append(shell);
+ render();
 }
 function render(){
  const main=$('#tm-main-tabs'),sub=$('#tm-subbar'),panel=$('#tm-panel');Array.from(main.children).forEach(b=>b.classList.toggle('active',b.textContent===state.tab));
