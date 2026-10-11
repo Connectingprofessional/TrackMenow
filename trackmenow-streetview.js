@@ -7,6 +7,7 @@
   'use strict';
 
   var map = null;
+  var googleKey = '';
   var attached = null;
   var active = false;
   var overlay = null;
@@ -116,9 +117,10 @@
       var r = await fetch((window.TM_API_BASE || 'https://wispy-bush-9aee.recreationeeraj.workers.dev') + '/api/google/maps-config', { cache: 'no-store' });
       var j = await r.json();
       if (j && j.configured && j.key) {
-        window.TM_GOOGLE_MAPS_API_KEY = String(j.key);
-        window.TM_GOOGLE_MAPS_3D_API_KEY = String(j.key);
-        return String(j.key);
+        googleKey = String(j.key);
+        window.TM_GOOGLE_MAPS_API_KEY = googleKey;
+        window.TM_GOOGLE_MAPS_3D_API_KEY = googleKey;
+        return googleKey;
       }
     } catch (e) {}
     return '';
@@ -223,7 +225,7 @@
       if (token !== requestToken) return;
       panoramaHost.style.display = 'none';
       var message = err && err.message ? err.message : 'Street View could not be loaded.';
-      showStatus(message + ' Google key: ' + (key() ? 'PRESENT' : 'MISSING') + '. If authorization is reported, check Maps JavaScript API, billing, and HTTP-referrer restrictions for the deployed TrackMeNow domain.');
+      showStatus(message + ' Google key: ' + (key() ? 'PRESENT' : 'MISSING') + '. Enable Maps JavaScript API + Street View, billing, and authorize connectingprofessional.github.io in the same key.');
     }
   }
 
