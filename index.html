@@ -64,13 +64,14 @@ body{overscroll-behavior:none}
 window.TM_API_BASE='https://wispy-bush-9aee.recreationeeraj.workers.dev';
 window.TM_MOVEMENT_API_BASE=window.TM_API_BASE;
 window.TM_CAMERA_CATALOGUE_URL='https://raw.githubusercontent.com/connectingprofessional/trackmenow/live-data/cameras.json';
-/* Google Cloud API key with the "Maps Embed API" enabled, for the Street View panel.
-   Leave blank until you have one — Street View just shows a "no key configured" message
-   until then; nothing else on the site depends on this. */
+/* SINGLE GOOGLE MAPS PLATFORM KEY
+   TrackMeNow deliberately uses ONE browser key for the entire Google Earth workspace:
+   Maps JavaScript API, Map Tiles API (2D + Photorealistic 3D), Street View and related
+   Google Maps features enabled for the same Google Cloud project.
+   The deployed key is resolved from the secure Worker /api/google/maps-config endpoint.
+   Keep the published value blank; never commit the credential to GitHub. */
 window.TM_GOOGLE_MAPS_API_KEY='';
-/* Add a browser-restricted Maps JavaScript API key with Maps 3D access here.
-   Do not commit service-account credentials or unrestricted keys to this public repository. */
-window.TM_GOOGLE_MAPS_3D_API_KEY='';
+window.TM_GOOGLE_MAPS_3D_API_KEY=window.TM_GOOGLE_MAPS_API_KEY;
 setTimeout(function(){var b=document.getElementById('tm-boot');if(b&&!b.classList.contains('ready'))b.classList.add('ready');},12000);
 </script>
 <script src="./vendor/maplibre-gl/maplibre-gl.js"></script>
